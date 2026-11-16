@@ -27,6 +27,7 @@ Output:
 - `out/app-snapshot/`: `www/`, `Info.plist`, `config.xml`
 - `out/deob/`: webcrack output, 109 webpack modules (`3488.js`, `7616.js`, …)
 - `out/annotated/`: the same modules with readable names (see below)
+- `out/map.md`: a map of all modules (see below)
 
 ## Verification
 
@@ -36,17 +37,36 @@ numbers and line references in the docs apply to your copy.
 
 ## Readable names: `annotate.mjs`
 
-webcrack decodes strings and control flow, but local names stay `_0x2ee3f5`. `annotate.mjs` renames module-level
+webcrack decodes strings and control flow, but local names stay `_0x2ee3f5`. `annotate.mjs` renames obfuscated
 identifiers and changes nothing else: same layout, same line numbers, so `diff -r out/deob out/annotated` shows
-only renames. Names come from:
+only renames. About 3100 names, all found automatically except what is in `names.json`:
 
-1. `names.json` → `names`: hand-written, per module (`{"3488": {"_0x2ee3f5": "bleState"}}`),
-2. webpack export getters: `require.d(exports, { buildFrame: function () { return _0x3cf0e2; } })`,
-3. method tables in the code: `{ u_startScan: _0xd0f8e9 }`,
-4. module imports: `var _0x1aa053 = require("./7616.js")` → `helpers_7616` (aliases in `names.json` → `modules`).
+| source | example | count |
+|---|---|---|
+| webpack export getters | `require.d(exports, { buildFrame: … })` → `buildFrame` | ~400 |
+| module imports (aliases in `names.json` → `modules`, libraries detected by `map.mjs`) | `helpers_7616`, `jquery` | ~420 |
+| method tables, named function expressions | `{ u_startScan: _0xd0f8e9 }` → `u_startScan` | ~150 |
+| Babel runtime helpers, recognised by their code | `_asyncToGenerator`, `_classCallCheck`, `_typeof` | ~190 |
+| async wrappers and regenerator state machines | `showLoading_impl`, `_callee`, `_context` | ~330 |
+| DOM and values | `querySelector(".loading")` → `loadingEl`, `localStorage.getItem("arcAddress")` → `arcAddress` | ~540 |
+| local conventions | `catch (err)`, `.findIndex(function (item)`, `new Promise(function (resolve, reject)`, `for (var i` | ~1100 |
+| hand-written | `names.json` → `names`, e.g. `{"3488": {"_0x2ee3f5": "bleState"}}` | |
 
-About 900 names come out of 2–4 automatically. A name that already exists in the file is never reused.
+A new name is only used where it doesn't occur in the binding's scope yet, and every file is checked afterwards:
+each identifier must resolve to the same declaration (or the same global) as before, otherwise the script stops.
 `out/annotated/names.report.json` lists every rename with its source. `names.json` contains names only, no code.
+
+## Module map: `map.mjs`
+
+```bash
+node map.mjs out/annotated out/map.md names.json
+```
+
+`out/map.md` lists every module: size, which modules it uses and is used by, its exports, the HTML templates it
+loads, localStorage keys, BLE frames built from constants, console messages, and bundled libraries it recognises
+(jQuery, lodash, buffer, Swiper, …). For modules without any of that it shows their most frequent strings, which
+is usually enough to tell what they are. It is generated from your copy and contains short strings from the code,
+so it stays local like the rest of `out/`.
 
 ## Rebuilding a bundle: `rebundle.mjs`
 

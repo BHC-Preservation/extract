@@ -116,4 +116,5 @@ fi
 # 6. Readable names (names.json + export tables), same line numbers as deob/.
 info "naming identifiers → $OUT/annotated"
 (cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node annotate.mjs "$OUT/deob" "$OUT/annotated" names.json)
-info "done: $OUT/app-snapshot, $OUT/deob, $OUT/annotated"
+(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node map.mjs "$OUT/annotated" "$OUT/map.md" names.json)
+info "done: $OUT/app-snapshot, $OUT/deob, $OUT/annotated, $OUT/map.md"
