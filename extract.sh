@@ -117,4 +117,20 @@ fi
 info "naming identifiers → $OUT/annotated"
 (cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node annotate.mjs "$OUT/deob" "$OUT/annotated" names.json)
 (cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node map.mjs "$OUT/annotated" "$OUT/map.md" names.json)
-info "done: $OUT/app-snapshot, $OUT/deob, $OUT/annotated, $OUT/map.md"
+
+# 7. Reading view: wakaru turns Babel output back into modern JS (async/await, classes, let/const). Line numbers change
+#    and the result is ES modules, so it is for reading only; patches go on deob/. Skipped where wakaru has no binary.
+WAKARU="$(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node -e 'try { process.stdout.write(require.resolve("@wakaru/cli-" + process.platform + "-" + process.arch + "/wakaru" + (process.platform === "win32" ? ".exe" : ""))) } catch {}')"
+if [ -n "$WAKARU" ]; then
+  info "reading view (wakaru) → $OUT/readable"
+  mkdir -p "$OUT/readable"
+  : > "$OUT/readable/wakaru.log"
+  for f in "$OUT/annotated"/[0-9]*.js; do
+    b="$(basename "$f")"
+    "$WAKARU" "$f" -o "$OUT/readable/$b" 2>>"$OUT/readable/wakaru.log" \
+      || { cp "$f" "$OUT/readable/$b"; echo "    wakaru failed on $b, kept the annotated version" >&2; }
+  done
+else
+  echo "    wakaru not available for this platform, skipping $OUT/readable" >&2
+fi
+info "done: $OUT/app-snapshot, $OUT/deob, $OUT/annotated, $OUT/map.md${WAKARU:+, $OUT/readable}"

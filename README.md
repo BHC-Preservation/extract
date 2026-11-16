@@ -28,6 +28,7 @@ Output:
 - `out/deob/`: webcrack output, 109 webpack modules (`3488.js`, `7616.js`, …)
 - `out/annotated/`: the same modules with readable names (see below)
 - `out/map.md`: a map of all modules (see below)
+- `out/readable/`: a reading view made with wakaru (see below)
 
 ## Verification
 
@@ -67,6 +68,18 @@ loads, localStorage keys, BLE frames built from constants, console messages, and
 (jQuery, lodash, buffer, Swiper, …). For modules without any of that it shows their most frequent strings, which
 is usually enough to tell what they are. It is generated from your copy and contains short strings from the code,
 so it stays local like the rest of `out/`.
+
+## Reading view: wakaru
+
+`extract.sh` also runs [wakaru](https://github.com/pionxzh/wakaru) (pinned, prebuilt binary for macOS arm64,
+Linux and Windows) on every annotated module and writes `out/readable/`. It undoes much of what Babel did:
+about half of the regenerator state machines become `async`/`await` (the wrapper and `_impl` pair turns into one
+`async function connectToArcLoop()`), classes come back (`GameType`, `BuildingQueue`, …), `var` becomes
+`let`/`const`, `(0, f)()` becomes `f()`. Names from `annotate.mjs` are kept.
+
+This view is **for reading only**. Line numbers differ from `deob/` and `annotated/`, the modules are rewritten
+as ES modules, and wakaru itself warns that a few of them still call `require` (see `out/readable/wakaru.log`).
+Find the place in `readable/`, then patch `deob/`.
 
 ## Rebuilding a bundle: `rebundle.mjs`
 
