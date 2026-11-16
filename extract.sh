@@ -98,8 +98,8 @@ else
   node -v | grep -q '^v22\.' || echo "warning: Node 22 recommended (no mise found), have $(node -v)" >&2
   RUN=()
 fi
-(cd "$HERE" && "${RUN[@]}" npm ci --silent --no-audit --no-fund)
-(cd "$HERE" && "${RUN[@]}" npx --no-install webcrack "$SNAP/www/js/index.min.js" -o "$OUT/deob" -f)
+(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} npm ci --silent --no-audit --no-fund)
+(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} npx --no-install webcrack "$SNAP/www/js/index.min.js" -o "$OUT/deob" -f)
 
 (
   cd "$OUT"
@@ -113,4 +113,7 @@ fi
     echo "    deob: $bad of $total files differ (different webcrack version?)" >&2
   fi
 )
-info "done: $OUT/app-snapshot, $OUT/deob"
+# 6. Readable names (names.json + export tables), same line numbers as deob/.
+info "naming identifiers → $OUT/annotated"
+(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node annotate.mjs "$OUT/deob" "$OUT/annotated" names.json)
+info "done: $OUT/app-snapshot, $OUT/deob, $OUT/annotated"

@@ -1,0 +1,35 @@
+{
+  "modules": {
+    "3488": "ble",
+    "7616": "helpers",
+    "9073": "config",
+    "4263": "devApi",
+    "1018": "settings",
+    "4687": "firmware",
+    "3429": "device",
+    "7133": "texts",
+    "9036": "registration",
+    "881": "fleets",
+    "4330": "planetPicker",
+    "2160": "planets",
+    "5330": "planetEffects",
+    "7067": "planetParams",
+    "6214": "planetLimits",
+    "7562": "managers",
+    "4244": "buildings",
+    "5891": "newGame",
+    "1089": "userActions",
+    "2933": "responses",
+    "2432": "boardEvents",
+    "6869": "game",
+    "5021": "debugSim",
+    "5394": "galaxy",
+    "799": "scoring",
+    "3922": "ambience"
+  },
+  "names": {
+    "3488": {
+      "_0x2ee3f5": "bleState"
+    }
+  }
+}
