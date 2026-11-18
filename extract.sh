@@ -123,7 +123,7 @@ info "naming identifiers → $OUT/annotated"
 WAKARU="$(cd "$HERE" && ${RUN[@]+"${RUN[@]}"} node -e 'try { process.stdout.write(require.resolve("@wakaru/cli-" + process.platform + "-" + process.arch + "/wakaru" + (process.platform === "win32" ? ".exe" : ""))) } catch {}')"
 if [ -n "$WAKARU" ]; then
   info "reading view (wakaru) → $OUT/readable"
-  mkdir -p "$OUT/readable"
+  rm -rf "$OUT/readable"; mkdir -p "$OUT/readable"   # wakaru refuses to overwrite
   : > "$OUT/readable/wakaru.log"
   for f in "$OUT/annotated"/[0-9]*.js; do
     b="$(basename "$f")"

@@ -31,7 +31,10 @@
     "8764": "buffer",
     "3845": "swiper",
     "9742": "base64",
-    "645": "ieee754"
+    "645": "ieee754",
+    "6606": "scenarios",
+    "5183": "scenarioList",
+    "9546": "scenarioPlanets"
   },
   "names": {
     "3488": {
